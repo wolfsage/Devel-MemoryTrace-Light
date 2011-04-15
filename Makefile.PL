@@ -20,7 +20,6 @@ my %WriteMakefileArgs = (
   'LICENSE' => 'perl',
   'NAME' => 'Devel::MemoryTrace::Light',
   'PREREQ_PM' => {
-    'GTop' => '0'
   },
   'VERSION' => '0.01',
   'test' => {
@@ -28,8 +27,16 @@ my %WriteMakefileArgs = (
   }
 );
 
+# Only require GTop on FreeBSD if it's already installed
 if ($^O eq 'freebsd') {
-  $WriteMakefileArgs{'PREREQ_PM'}{'BSD::Process'} = '0';
+  eval { use GTop; };
+  if ($@) {
+    $WriteMakefileArgs{'PREREQ_PM'}{'BSD::Process'} = '0';
+  } else {
+    $WriteMakefileArgs{'PREREQ_PM'}{'GTop'} = '0'
+  }
+} else {
+  $WriteMakefileArgs{'PREREQ_PM'}{'GTop'} = '0'
 }
 
 unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {

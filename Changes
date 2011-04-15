@@ -1,3 +1,8 @@
+0.02 <unreleased>
+
+    - Doc fixes/additions
+    - Only use GTop on FreeBSD if it's already installed
+
 0.01 Thu, Apr 14, 2011
 
     - Initial (alpha) version
