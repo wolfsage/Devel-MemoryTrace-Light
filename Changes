@@ -1,4 +1,4 @@
-0.02 <unreleased>
+0.02 Fri, Apr 15, 2011
 
     - Doc fixes/additions
     - Only use GTop on FreeBSD if it's already installed

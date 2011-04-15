@@ -1,7 +1,7 @@
 package Devel::MemoryTrace::Light;
 
 BEGIN {
-	$Devel::MemoryTrace::Light::VERSION = '0.01';
+	$Devel::MemoryTrace::Light::VERSION = '0.02';
 }
 
 use strict;
@@ -94,7 +94,7 @@ Devel::MemoryTrace::Light - Print a message when your program grows in memory
 
 =head1 VERSION
 
-version .01
+version .02
 
 =head1 SYNOPSIS
 
