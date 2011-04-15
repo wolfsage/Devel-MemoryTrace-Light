@@ -29,7 +29,7 @@ my %WriteMakefileArgs = (
 
 # Only require GTop on FreeBSD if it's already installed
 if ($^O eq 'freebsd') {
-  eval { use GTop; };
+  eval "use GTop";
   if ($@) {
     $WriteMakefileArgs{'PREREQ_PM'}{'BSD::Process'} = '0';
   } else {
