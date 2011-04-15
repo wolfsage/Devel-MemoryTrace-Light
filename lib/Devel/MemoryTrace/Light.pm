@@ -94,7 +94,7 @@ Devel::MemoryTrace::Light - Print a message when your program grows in memory
 
 =head1 VERSION
 
-version .02
+version .03
 
 =head1 SYNOPSIS
 
