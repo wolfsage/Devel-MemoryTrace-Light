@@ -1,7 +1,7 @@
 package Devel::MemoryTrace::Light;
 
 BEGIN {
-	$Devel::MemoryTrace::Light::VERSION = '0.02';
+	$Devel::MemoryTrace::Light::VERSION = '0.03';
 }
 
 use strict;
