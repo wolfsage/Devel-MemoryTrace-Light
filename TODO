@@ -2,4 +2,5 @@
 
     - Tests
     - enable/disable tracing support
+    - Ability to keep tracing after END
 
