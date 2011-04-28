@@ -40,6 +40,28 @@ my $trace = 1;
 
 my $callback = \&_report;
 
+my $last_mem = $mem_class->get_mem();
+my @last_id  = ('init', 0, 0);
+
+# Forward declare for use in the next block
+sub disable_trace();
+
+if (my $opts = $ENV{MEMORYTRACE_LIGHT}) {
+	for my $opt (split(':', $opts)) {
+		my ($key, $val) = split('=', $opt);
+
+		if ($key eq 'start') {
+			if ($val eq 'no') {
+				disable_trace();
+			} else {
+				warn "Ignoring unknown value $val for 'start'\n";
+			}
+		} else {
+			warn "Ignoring unknown config $key\n";
+		}
+	}
+}
+
 sub set_callback (&) {
 	$callback = $_[0];
 }
@@ -48,7 +70,15 @@ sub restore_callback () {
 	$callback = \&_report;
 }
 
-sub _disable_trace {
+sub enable_trace () {
+	# Memory tracing has been disabled, update our state
+	$last_mem = $mem_class->get_mem();
+	@last_id = caller();
+
+	$trace = 1;
+}
+
+sub disable_trace () {
 	$trace = 0;
 }
 
@@ -57,9 +87,6 @@ sub _report {
 
 	printf(">> $pkg, $file ($line) used %d bytes\n", $mem);
 }
-
-my $last_mem = $mem_class->get_mem();
-my @last_id  = ('init', 0, 0);
 
 sub DB {
 	return unless $trace;
@@ -78,7 +105,7 @@ sub DB {
 END {
 	DB::DB(); # Force last line to be evaluated for memory growth
 
-	_disable_trace();	
+	disable_trace();
 }
 
 1;
@@ -121,15 +148,39 @@ Then the output will look like:
   >> init, 0 (0) used 8192 bytes
   >> main, ex.pl (7) used 20480 bytes
 
+=head1 MEMORYTRACE_LIGHT ENVIRONMENT VARIABLE
+
+The C<MEMORYTRACE_LIGHT> environment variable may be used to control some of the 
+behaviors of Devel::MemoryTrace::Light. The format is C<key=value>, and multiple 
+values may be set at one time using the C<:> separator. For example:
+
+  export MEMORYTRACE_LIGHT=start=no
+
+=head2 start=no
+
+You may disable tracing automatically by setting C<start=no>. This allows you to 
+later enable tracing by calling C<DB::enable_trace()>. See below for more 
+information.
+
 =head1 RUN-TIME CONTROL OF TRACING
+
+A limited set of functionality is provided for run-time control of tracing.
+
+=head2 disable_trace()
+
+=head2 enable_trace()
+
+You can control when tracing happens by using C<DB::enable_trace()> and 
+C<DB::disable_trace>. This works well coupled with the C<start=no> environment 
+variable described above.
+
+=head2 set_callback(\&somefunc)
 
 If you would like to override the default behavior of printing to STDOUT 
 whenever the program size increases, you may provide your own callback method.
 
-=head2 set_callback(\&somefunc)
-
-Causes C<\&somefunc> to be called whenever the debugger detects an increase in 
-memory size. C<\&somefunc> should accept 4 arguments:
+This causes C<\&somefunc> to be called whenever the debugger detects an increase 
+in memory size. C<\&somefunc> should accept 4 arguments:
 
 =over 4
 
