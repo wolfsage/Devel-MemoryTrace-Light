@@ -166,15 +166,15 @@ information.
 
 A limited set of functionality is provided for run-time control of tracing.
 
-=head2 disable_trace()
+=head2 DB::disable_trace()
 
-=head2 enable_trace()
+=head2 DB::enable_trace()
 
 You can control when tracing happens by using C<DB::enable_trace()> and 
-C<DB::disable_trace>. This works well coupled with the C<start=no> environment 
-variable described above.
+C<DB::disable_trace>. This works well coupled with the C<start=no> 
+setting in the C<MEMORYTRACE_LIGHT> environment variable described above.
 
-=head2 set_callback(\&somefunc)
+=head2 DB::set_callback(\&somefunc)
 
 If you would like to override the default behavior of printing to STDOUT 
 whenever the program size increases, you may provide your own callback method.
@@ -194,7 +194,7 @@ in memory size. C<\&somefunc> should accept 4 arguments:
 
 =back
 
-=head2 restore_callback()
+=head2 DB::restore_callback()
 
 Restores the default callback.
 
