@@ -7,6 +7,8 @@ BEGIN {
 use strict;
 use warnings;
 
+my $trace            = 1; # Tracing enabled by default
+my $trace_immediate  = 0; # Compile-time tracing disabled by default
 my $mem_class;
 
 if (my $opts = $ENV{MEMORYTRACE_LIGHT}) {
@@ -15,7 +17,9 @@ if (my $opts = $ENV{MEMORYTRACE_LIGHT}) {
 
 		if ($key eq 'start') {
 			if ($val eq 'no') {
-				&DB::disable_trace;
+				$trace = 0;
+			} elsif ($val eq 'begin') {
+				$trace_immediate = 1;
 			} else {
 				warn "Ignoring unknown value $val for 'start'\n";
 			}
@@ -64,8 +68,6 @@ package DB;
 
 use strict;
 use warnings;
-
-my $trace = 1;
 
 my $callback = \&_report;
 
@@ -131,6 +133,9 @@ END {
 
 	disable_trace(); # Otherwise we'll probably crash
 }
+
+# This must go at the end!
+$DB::single = $trace_immediate;
 
 1;
 
@@ -198,11 +203,16 @@ report memory for the new forked process.
 The B<provider> setting may also be used to force Devel::MemoryTrace::Light to 
 prefer one of the built-in providers over another if more than one is installed.
 
-=head2 start=no
+=head2 start=...
 
-You may disable tracing automatically by setting C<start=no>. This allows you to 
-later enable tracing by calling C<DB::enable_trace()>. See below for more 
-information.
+Modify when tracing happens:
+
+  start=begin - trace compilation of the program and beyond
+  start=no    - disable tracing until C<DB::enable_trace()> is called
+
+By default, tracing doesn't happen until the beginning of the INIT phase, after 
+compilation. To see where memory growth is happening inside of C<use> 
+statements, use C<start=begin>.
 
 =head1 RUN-TIME CONTROL OF TRACING
 
