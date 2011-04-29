@@ -10,6 +10,11 @@ sub get_mem {
 	return $mem->rssize * 1024;
 }
 
+# We forked? Re-init
+sub forked {
+	$mem = BSD::Process->new();
+}
+
 1;
 
 

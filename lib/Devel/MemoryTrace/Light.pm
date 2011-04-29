@@ -72,6 +72,8 @@ my $callback = \&_report;
 my $last_mem = $mem_class->get_mem();
 my @last_id  = ('init', 0, 0);
 
+my $pid = $$;
+
 sub set_callback (&) {
 	$callback = $_[0];
 }
@@ -82,6 +84,12 @@ sub restore_callback () {
 
 sub enable_trace () {
 	# Memory tracing has been disabled, update our state
+	if ($pid != $$) {
+		$mem_class->forked() if $mem_class->can('forked');
+
+		$pid = $$;
+	}
+
 	$last_mem = $mem_class->get_mem();
 	@last_id = caller();
 
@@ -100,6 +108,12 @@ sub _report {
 
 sub DB {
 	return unless $trace;
+
+	if ($pid != $$) {
+		$mem_class->forked() if $mem_class->can('forked');
+
+		$pid = $$;
+	}
 
 	my $newmem = $mem_class->get_mem();
 
@@ -171,13 +185,18 @@ values may be set at one time using the C<:> separator. For example:
 Forces Devel::MemoryTrace::Light to use whatever class is passed in to determine 
 memory usage.
 
-The provider class must define a C<get_mem()> method which should return 
+The provider class I<must> define a C<get_mem()> method which should return 
 the current process' memory size. The built in modules return the resident set 
 size, but a custom provider could use virtual, swap, or whatever it wants, as 
 long as it returns the same type of information consistently.
 
-This variable may also be used to force Devel::MemoryTrace::Light to prefer one 
-of the built-in providers over another if more than one is installed.
+The provider class I<should> also define a C<forked()> method which will be 
+called if Devel::MemoryTrace::Light detects that the process has forked. This method 
+should do any re-initialization necessary for the provider class to accurately 
+report memory for the new forked process.
+
+The B<provider> setting may also be used to force Devel::MemoryTrace::Light to 
+prefer one of the built-in providers over another if more than one is installed.
 
 =head2 start=no
 

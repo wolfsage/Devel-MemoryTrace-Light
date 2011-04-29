@@ -8,6 +8,11 @@ sub get_mem {
 	return $gtop->proc_mem($$)->resident;
 }
 
+# We forked? Re-init
+sub forked {
+	$gtop = GTop->new();
+}
+
 1;
 
 
