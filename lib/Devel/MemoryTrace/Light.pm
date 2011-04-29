@@ -7,29 +7,58 @@ BEGIN {
 use strict;
 use warnings;
 
-my @mod_preference = qw(
-	Devel::MemoryTrace::Light::BSDProcess
-	Devel::MemoryTrace::Light::GTop
-);
-
-if ($^O ne 'freebsd') {
-	shift @mod_preference;
-}
-
 my $mem_class;
 
-for my $p (@mod_preference) {
-	eval "use $p";
+if (my $opts = $ENV{MEMORYTRACE_LIGHT}) {
+	for my $opt (split(':', $opts)) {
+		my ($key, $val) = split('=', $opt);
 
-	unless ($@) {
-		$mem_class = $p; last;
+		if ($key eq 'start') {
+			if ($val eq 'no') {
+				&DB::disable_trace;
+			} else {
+				warn "Ignoring unknown value $val for 'start'\n";
+			}
+		} elsif ($key eq 'provider') {
+			eval "use $val";
+
+			die "Failed to load custom provider ($val): $@\n" if $@;
+
+			die "Custom provider ($val) doesn't provide a get_mem() method!\n"
+				unless $val->can('get_mem');
+
+			die "Custom provider ($val\::get_mem()) doesn't return an integer value\n"
+				unless $val->get_mem() =~ /\A\d+\Z/;
+
+			$mem_class = $val;
+		} else {
+			warn "Ignoring unknown config $key\n";
+		}
 	}
 }
 
 unless ($mem_class) {
-	die "No suitable memory examiner found!\n";
-}
+	my @mod_preference = qw(
+		Devel::MemoryTrace::Light::BSDProcess
+		Devel::MemoryTrace::Light::GTop
+	);
 
+	if ($^O ne 'freebsd') {
+		shift @mod_preference;
+	}
+
+	for my $p (@mod_preference) {
+		eval "use $p";
+
+		unless ($@) {
+			$mem_class = $p; last;
+		}
+	}
+
+	unless ($mem_class) {
+		die "No suitable memory examiner found!\n";
+	}
+}
 
 package DB;
 
@@ -42,25 +71,6 @@ my $callback = \&_report;
 
 my $last_mem = $mem_class->get_mem();
 my @last_id  = ('init', 0, 0);
-
-# Forward declare for use in the next block
-sub disable_trace();
-
-if (my $opts = $ENV{MEMORYTRACE_LIGHT}) {
-	for my $opt (split(':', $opts)) {
-		my ($key, $val) = split('=', $opt);
-
-		if ($key eq 'start') {
-			if ($val eq 'no') {
-				disable_trace();
-			} else {
-				warn "Ignoring unknown value $val for 'start'\n";
-			}
-		} else {
-			warn "Ignoring unknown config $key\n";
-		}
-	}
-}
 
 sub set_callback (&) {
 	$callback = $_[0];
@@ -85,7 +95,7 @@ sub disable_trace () {
 sub _report {
 	my ($pkg, $file, $line, $mem) = @_;
 
-	printf(">> $pkg, $file ($line) used %d bytes\n", $mem);
+	printf(">> $$ $pkg, $file ($line) used %d bytes\n", $mem);
 }
 
 sub DB {
@@ -105,7 +115,7 @@ sub DB {
 END {
 	DB::DB(); # Force last line to be evaluated for memory growth
 
-	disable_trace();
+	disable_trace(); # Otherwise we'll probably crash
 }
 
 1;
@@ -131,9 +141,9 @@ version .04
 
 B<This is an Alpha release! More features to come.>
 
-Prints out a message when your program grows in memory containing the package, 
-file, line, and number of bytes (resident set size) your program increased. For 
-example, if your program looked like this:
+Prints out a message when your program grows in memory containing the 
+B<pid>, B<package>, B<file>, B<line>, and B<number of bytes> (resident set 
+size) your program increased. For example, if your program looked like this:
 
   #!/usr/bin/perl
 
@@ -145,8 +155,8 @@ example, if your program looked like this:
 
 Then the output will look like:
 
-  >> init, 0 (0) used 8192 bytes
-  >> main, ex.pl (7) used 20480 bytes
+  >> 324 init, 0 (0) used 8192 bytes
+  >> 324 main, ex.pl (7) used 20480 bytes
 
 =head1 MEMORYTRACE_LIGHT ENVIRONMENT VARIABLE
 
@@ -154,7 +164,20 @@ The C<MEMORYTRACE_LIGHT> environment variable may be used to control some of the
 behaviors of Devel::MemoryTrace::Light. The format is C<key=value>, and multiple 
 values may be set at one time using the C<:> separator. For example:
 
-  export MEMORYTRACE_LIGHT=start=no
+  export MEMORYTRACE_LIGHT=start=no:provider=MyClass
+
+=head2 provider=...
+
+Forces Devel::MemoryTrace::Light to use whatever class is passed in to determine 
+memory usage.
+
+The provider class must define a C<get_mem()> method which should return 
+the current process' memory size. The built in modules return the resident set 
+size, but a custom provider could use virtual, swap, or whatever it wants, as 
+long as it returns the same type of information consistently.
+
+This variable may also be used to force Devel::MemoryTrace::Light to prefer one 
+of the built-in providers over another if more than one is installed.
 
 =head2 start=no
 
