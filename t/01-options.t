@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More;
 
-#plan tests => 10;
+plan tests => 28;
 
 use Config;
 
@@ -162,4 +162,3 @@ $expect *= 2;
 
 like($output, qr/hello world/m, 'program ran successfuly');
 
-done_testing;
