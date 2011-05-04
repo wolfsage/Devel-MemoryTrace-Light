@@ -7,7 +7,7 @@ BEGIN {
 use strict;
 use warnings;
 
-my $trace            = 1; # Tracing enabled by default
+my $trace;                # Tracing enabled by default (set after ENV handling)
 my $trace_immediate  = 0; # Compile-time tracing disabled by default
 my $mem_class;
 
@@ -21,25 +21,28 @@ if (my $opts = $ENV{MEMORYTRACE_LIGHT}) {
 			} elsif ($val eq 'begin') {
 				$trace_immediate = 1;
 			} else {
-				warn "Ignoring unknown value $val for 'start'\n";
+				warn "Ignoring unknown value ($val) for 'start'\n";
 			}
 		} elsif ($key eq 'provider') {
 			eval "use $val";
 
-			die "Failed to load custom provider ($val): $@\n" if $@;
+			die "Custom provider ($val) failed to load: $@\n" if $@;
 
-			die "Custom provider ($val) doesn't provide a get_mem() method!\n"
+			die "Custom provider ($val) failed to load: No get_mem() method found\n"
 				unless $val->can('get_mem');
 
-			die "Custom provider ($val\::get_mem()) doesn't return an integer value\n"
+			die "Custom provider ($val) failed to load: get_mem() didn't return an integer\n"
 				unless $val->get_mem() =~ /\A\d+\Z/;
 
 			$mem_class = $val;
 		} else {
-			warn "Ignoring unknown config $key\n";
+			warn "Ignoring unknown config option ($key)\n";
 		}
 	}
 }
+
+# Trace enabled by default. Set down here incase die() is called above
+$trace = 1 unless defined $trace;
 
 unless ($mem_class) {
 	my @mod_preference = qw(

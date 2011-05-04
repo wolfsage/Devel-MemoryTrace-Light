@@ -3,34 +3,38 @@ use warnings;
 
 use Test::More;
 
-plan tests => 6;
+plan tests => 4;
 
-use_ok('Devel::MemoryTrace::Light', 'Module used');
+use Config;
 
-my @tracked_mem;
+my $perlbin;
 
-sub track_mem {
-	@tracked_mem = @_;
+eval "require Probe::Perl";
+
+unless ($@) {
+	$perlbin = Probe::Perl->find_perl_interpreter();
 }
 
-DB::set_callback(\&track_mem);
+$perlbin ||= $Config{perlpath};
 
-sub get_mem {
-	my @temp = @tracked_mem;
+my $includes = '-I t/lib/';
 
-	@tracked_mem = ();
+# Simplest case
+my $output = `$perlbin -d:MemoryTrace::Light t/bin/mem_simple.pl 2>&1`;
 
-	return @temp;
-}
+like($output, qr/^>> \d+ main, .*mem_simple.pl \(5\) used \d+ bytes$/m,
+	'4MB increase detected');
 
-# Mock running under the debugger.
-DB::DB(); my $string;
-DB::DB(); $string = 'x' x (1024 * 1024 * 2);
-DB::DB();
+# Memory growth at end of program
+$output = `$perlbin -d:MemoryTrace::Light t/bin/mem_at_end.pl 2>&1`;
 
-my @mem = get_mem();
-is(@mem, 4,                      'Got memory change; callback worked');
-is($mem[0],   'main',              'correct package');
-is($mem[1],   't/00-basic.t',      'correct file');
-is($mem[2],   '28',                'correct line');
-like($mem[3], qr/^\d+$/,           'got bytes');
+like($output, qr/^>> \d+ main, .*mem_at_end.pl \(6\) used \d+ bytes$/m,
+	'4MB increase detected');
+
+# By default, compile-time is not traced
+$output = `$perlbin $includes -d:MemoryTrace::Light t/bin/mem_at_compile_time.pl 2>&1`;
+
+unlike($output, qr/>> \d+ DBMTraceMemIncAtCompile.*/,
+	'compile-time tracing did not happen by default');
+
+like($output, qr/hello world/m, 'program ran successfully');
