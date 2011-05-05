@@ -72,6 +72,11 @@ package DB;
 use strict;
 use warnings;
 
+# Disables tracing after compile-time if start=no was set
+INIT {
+	$DB::single = $trace;
+}
+
 my $callback = \&_report;
 
 my $last_mem = $mem_class->get_mem();
@@ -98,11 +103,11 @@ sub enable_trace () {
 	$last_mem = $mem_class->get_mem();
 	@last_id = caller();
 
-	$trace = 1;
+	$DB::single = 1;
 }
 
 sub disable_trace () {
-	$trace = 0;
+	$DB::single = 0;
 }
 
 sub _report {
@@ -112,8 +117,6 @@ sub _report {
 }
 
 sub DB {
-	return unless $trace;
-
 	if ($pid != $$) {
 		$mem_class->forked() if $mem_class->can('forked');
 
@@ -132,13 +135,19 @@ sub DB {
 }
 
 END {
-	DB::DB(); # Force last line to be evaluated for memory growth
+	if ($DB::single) {
+		# Force last line to be evaluated for memory growth
+		DB::DB();
 
-	disable_trace(); # Otherwise we'll probably crash
+		# Otherwise we'll probably crash
+		disable_trace();
+	}
 }
 
 # This must go at the end!
-$DB::single = $trace_immediate;
+if ($trace_immediate) {
+	$DB::single = 1;
+}
 
 1;
 
