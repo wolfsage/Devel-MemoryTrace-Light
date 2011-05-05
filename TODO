@@ -2,6 +2,5 @@
 
     - Tests
       - set_callback/restore_callback
-      - enable_trace/disable_trace
     - Ability to keep tracing after END
 

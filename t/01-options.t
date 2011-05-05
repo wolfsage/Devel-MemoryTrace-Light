@@ -28,7 +28,7 @@ like($output, qr/^Ignoring unknown config option \(fake\)$/m,
 	'bad ENV option detected');
 
 like($output, qr/^>> \d+ main, .*mem_simple.pl \(5\) used \d+ bytes$/m,
-	'program still traced; 4MB increase detected');
+	'program still traced; increase detected');
 
 
 # Bad 'start'
@@ -40,7 +40,7 @@ like($output, qr/^Ignoring unknown value \(fake\) for 'start'\n/m,
 	'bad ENV value for start detected');
 
 like($output, qr/^>> \d+ main, .*mem_simple.pl \(5\) used \d+ bytes$/m,
-	'program still traced; 4MB increase detected');
+	'program still traced; increase detected');
 
 # Bad 'provider' (not found)
 $ENV{MEMORYTRACE_LIGHT} = 'provider=NoSuChModUleExisTs';

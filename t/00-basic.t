@@ -23,13 +23,13 @@ my $includes = '-I t/lib/';
 my $output = `$perlbin -d:MemoryTrace::Light t/bin/mem_simple.pl 2>&1`;
 
 like($output, qr/^>> \d+ main, .*mem_simple.pl \(5\) used \d+ bytes$/m,
-	'4MB increase detected');
+	'increase detected');
 
 # Memory growth at end of program
 $output = `$perlbin -d:MemoryTrace::Light t/bin/mem_at_end.pl 2>&1`;
 
 like($output, qr/^>> \d+ main, .*mem_at_end.pl \(6\) used \d+ bytes$/m,
-	'4MB increase detected');
+	'increase detected');
 
 # By default, compile-time is not traced
 $output = `$perlbin $includes -d:MemoryTrace::Light t/bin/mem_at_compile_time.pl 2>&1`;
