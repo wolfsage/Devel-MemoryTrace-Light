@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More;
 
-plan tests => 9;
+plan tests => 13;
 
 use Config;
 
@@ -59,3 +59,18 @@ like($output, qr/^>> \d+ main, .*mem_enable.pl \(10\) used 2048 bytes$/m,
 
 like($output, qr/hello world/, 'program ran successfully');
 
+# Test custom callback
+$ENV{MEMORYTRACE_LIGHT} = $p_arg;
+
+$output = `$perlbin $includes -d:MemoryTrace::Light t/bin/mem_callback.pl 2>&1`;
+
+like($output, qr/^>> \d+ main, .*mem_callback.pl \(12\) used 1 bytes$/m,
+	'program printed default trace output');
+
+like($output, qr/^I caught main .*mem_callback.pl 16 2 !$/m,
+	'program printed custom callback output after set_callback');
+
+like($output, qr/^>> \d+ main, .*mem_callback.pl \(20\) used 4 bytes$/m,
+	'program printed default trace output after restore_callback');
+
+like($output, qr/hello world/, 'program ran successfully');
