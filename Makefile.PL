@@ -23,7 +23,7 @@ my %WriteMakefileArgs = (
   'NAME' => 'Devel::MemoryTrace::Light',
   'PREREQ_PM' => {
   },
-  'VERSION' => '0.05',
+  'VERSION' => '0.06',
   'test' => {
     'TESTS' => 't/*.t t/*/*.t'
   }
