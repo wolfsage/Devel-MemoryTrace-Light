@@ -1,3 +1,12 @@
+0.05 Fri, Jun 10, 2011
+
+    - Better test coverage
+    - Disable tracing using $DB::single = 0, huge performance gain
+    - Allow tracing of compile-time
+    - Make Devel::MemoryTrace::Light fork safe
+    - Allow custom providers / preferred providers
+    - Doc fixes
+
 0.04 Sun, Apr 17, 2011
 
     - Set dynamic_build to 1 in META.yml to hopefully resolve
