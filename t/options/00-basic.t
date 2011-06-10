@@ -19,8 +19,11 @@ $perlbin ||= $Config{perlpath};
 
 my $includes = '-I t/lib/';
 
+# Need custom provider
+my $p_arg = 'provider=DMTraceProviderNextMem:';
+
 # Bad option
-$ENV{MEMORYTRACE_LIGHT} = 'fake=option:provider=DMTraceProviderNextMem';
+$ENV{MEMORYTRACE_LIGHT} = "${p_arg}fake=option";
 
 my $output = `$perlbin $includes -d:MemoryTrace::Light t/bin/mem_simple.pl 2>&1`;
 
