@@ -1,5 +1,6 @@
 0.05 Fri, Jun 10, 2011
 
+    - Promotion to beta status
     - Better test coverage
     - Disable tracing using $DB::single = 0, huge performance gain
     - Allow tracing of compile-time
