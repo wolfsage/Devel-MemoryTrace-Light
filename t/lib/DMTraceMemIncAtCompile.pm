@@ -3,8 +3,8 @@ package DMTraceMemIncAtCompile;
 use strict;
 use warnings;
 
-my $string = '';
+use lib 't/lib';
 
-$string = 'x' x (1024 * 1024 * 2);
+use DMTraceProviderNextMem;
 
-1;
+$DMTraceProviderNextMem::mem = 4096;

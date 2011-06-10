@@ -1,15 +1,16 @@
 # Basic disable/enable test
-
 use Devel::MemoryTrace::Light;
 
-my $string = '';
+use lib 't/lib/';
+
+use DMTraceProviderNextMem;
 
 DB::disable_trace();
 
-$string = 'x' x (1024 * 1024 * 2);
+$DMTraceProviderNextMem::mem += 1024;
 
 DB::enable_trace();
 
-$string = 'x' x (1024 * 1024 * 2);
+$DMTraceProviderNextMem::mem += 2048;
 
 print "hello world\n";

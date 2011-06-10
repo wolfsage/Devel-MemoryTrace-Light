@@ -1,8 +1,9 @@
 # Basic memory usage test case
+use lib 't/lib/';
 
-my $string = '';
+use DMTraceProviderNextMem;
 
-$string = 'x' x (1024 * 1024 * 2);
+$DMTraceProviderNextMem::mem = 1024;
 
 # So the previous line is considered before END time
 print "hello world\n";

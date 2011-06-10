@@ -1,15 +1,13 @@
 # Memory tracing enabled after start=no
-use Devel::MemoryTrace::Light;
+use lib 't/lib/';
 
-my $string = '';
+use DMTraceProviderNextMem;
 
-$string = 'x' x (1024 * 1024 * 2);
-
-$string = '';
+$DMTraceProviderNextMem::mem = 1024;
 
 DB::enable_trace();
 
-$string = 'x' x (1024 * 1024 * 2);
+$DMTraceProviderNextMem::mem += 2048;
 
 print "hello world\n";
 

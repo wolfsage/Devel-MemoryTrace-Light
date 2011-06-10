@@ -19,16 +19,19 @@ $perlbin ||= $Config{perlpath};
 
 my $includes = '-I t/lib/';
 
-# Simplest case
-my $output = `$perlbin -d:MemoryTrace::Light t/bin/mem_simple.pl 2>&1`;
+# Use custom provider so we control when mem increases
+$ENV{MEMORYTRACE_LIGHT} = 'provider=DMTraceProviderNextMem';
 
-like($output, qr/^>> \d+ main, .*mem_simple.pl \(5\) used \d+ bytes$/m,
+# Simplest case
+my $output = `$perlbin $includes -d:MemoryTrace::Light t/bin/mem_simple.pl 2>&1`;
+
+like($output, qr/^>> \d+ main, .*mem_simple.pl \(6\) used 1024 bytes$/m,
 	'increase detected');
 
 # Memory growth at end of program
-$output = `$perlbin -d:MemoryTrace::Light t/bin/mem_at_end.pl 2>&1`;
+$output = `$perlbin $includes -d:MemoryTrace::Light t/bin/mem_at_end.pl 2>&1`;
 
-like($output, qr/^>> \d+ main, .*mem_at_end.pl \(6\) used \d+ bytes$/m,
+like($output, qr/^>> \d+ main, .*mem_at_end.pl \(6\) used 1024 bytes$/m,
 	'increase detected');
 
 # By default, compile-time is not traced

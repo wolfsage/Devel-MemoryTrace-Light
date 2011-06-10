@@ -19,25 +19,29 @@ $perlbin ||= $Config{perlpath};
 
 my $includes = '-I t/lib/';
 
+# Use custom provider so we control when mem increases
+$ENV{MEMORYTRACE_LIGHT} = 'provider=DMTraceProviderNextMem';
+
 # disable_trace/enable_trace
 my $output = `$perlbin $includes -d:MemoryTrace::Light t/bin/mem_disable_enable.pl 2>&1`;
 
-unlike($output, qr/^>> \d+ main, .*mem_disable_enable.pl \(9\) used \d+ bytes$/m,
+unlike($output, qr/^>> \d+ main, .*mem_disable_enable.pl \(\d+\) used 1024 bytes$/m,
 	'program was not traced with DB::disable_trace()');
 
-like($output, qr/^>> \d+ main, .*mem_disable_enable.pl \(13\) used \d+ bytes$/m,
-	'program still traced; increase detected');
+like($output, qr/^>> \d+ main, .*mem_disable_enable.pl \(14\) used 2048 bytes$/m,
+	'program was traced after call to DB::enable_trace(); increase detected');
 
 like($output, qr/hello world/, 'program ran successfully');
 
-# memory growth when tracing is disable gets ignored
+# memory growth when tracing is disabled gets ignored
 $output = `$perlbin $includes -d:MemoryTrace::Light t/bin/mem_disable_enable_2.pl 2>&1`;
 
-unlike($output, qr/^>> \d+ main, .*mem_disable_enable_2.pl \(9\) used \d+ bytes$/m,
-	'program was not traced with DB::disable_trace()');
+unlike($output, qr/^>> \d+ main, .*mem_disable_enable_2.pl \(\d+\) used 1024 bytes$/m,
+	'program did not incorrectly report growth immediately after enable_trace()');
 
-unlike($output, qr/^>> \d+ main, .*mem_disable_enable_2.pl \(15\) used \d+ bytes$/m,
-	'program did not incorrectly report growth after enable_trace()');
+like($output, qr/^>> \d+ main, .*mem_disable_enable_2.pl \(15\) used 33 bytes$/m,
+	'program correctly reported growth after enable_trace() and actual growth');
+
 like($output, qr/hello world/, 'program ran successfully');
 
 # enable after start=no

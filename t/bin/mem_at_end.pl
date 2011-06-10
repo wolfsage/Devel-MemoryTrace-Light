@@ -1,6 +1,6 @@
-# Make sure the last line in a program gets evaluated for mem growth at END 
-# time
+# Basic memory usage test case
+use lib 't/lib/';
 
-my $string;
+use DMTraceProviderNextMem;
 
-$string = 'x' x (1024 * 1024 * 2);
+$DMTraceProviderNextMem::mem = 1024;

@@ -13,4 +13,6 @@ meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: Devel-MemoryTrace-Light
+resources:
+  repository: git://github.com/wolfsage/Devel-MemoryTrace-Light.git
 version: 0.04

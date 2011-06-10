@@ -1,9 +1,12 @@
-# Empty line
+# Test to make sure the provider is working
+use lib 't/lib/';
 
-print "hello world";
+use DMTraceProviderNextMem;
 
-for (1..10) {
-	print "Is there anybody out there...\n";
+$DMTraceProviderNextMem::mem = 5;
+
+for (1..5) {
+	$DMTraceProviderNextMem::mem *= 2;
 }
 
-print "This should (claim to) use more memory\n";
+print "hello world\n";
