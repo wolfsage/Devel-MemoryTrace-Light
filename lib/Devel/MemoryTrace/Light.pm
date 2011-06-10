@@ -144,7 +144,7 @@ END {
 	}
 }
 
-# This must go at the end!
+# This must go at the end (so we don't trace our own compilation)
 if ($trace_immediate) {
 	$DB::single = 1;
 }
@@ -269,6 +269,43 @@ Currently works on FreeBSD, Linux, and anywhere else L<GTop> is supported.
 On FreeBSD, installing this module will install L<BSD::Process> unless
 L<GTop> is already installed. L<BSD::Process> will be preferred if both
 modules are on the system.
+
+=head1 CAVEATS
+
+This module only identifies lines in a program that the resident set size 
+increased at. This does not mean, however, that if you have a memory leak and 
+you see bizarre lines increasing in size that they must be the problem. Often 
+times, that's not the case. Consider the following example:
+
+  #!/usr/bin/perl
+
+  use strict;
+  use warnings;
+
+  my @cache;
+
+  for (1..10_000) {
+          nothing();
+          use_mem();
+  }
+
+  sub nothing {
+          my @arr = 5;
+  }
+
+  sub use_mem {
+          push @cache, 1;
+  }
+
+If you run the above code under C<Devel::MemoryTrace::Light>, C<nothing()> will 
+be reported as using the most memory. In reality though, C<use_mem()> is caching 
+data and is the real cause of the memory consumption, but C<nothing()> causes 
+more actual memory growth as it tries to create a new array and assign 
+a value to its first element. 
+
+This is because after C<use_mem()> returns and C<@arr> goes out of scope, the 
+memory allocated to C<@arr> is potentially freed by the garbage collector, 
+allowing C<use_mem()> to use it without having to allocate more.
 
 =head1 BUGS
 
