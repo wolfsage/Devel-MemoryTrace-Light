@@ -15,4 +15,4 @@ meta-spec:
 name: Devel-MemoryTrace-Light
 resources:
   repository: git://github.com/wolfsage/Devel-MemoryTrace-Light.git
-version: 0.06
+version: 0.07

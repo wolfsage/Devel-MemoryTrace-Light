@@ -3,8 +3,8 @@
 use strict;
 use warnings;
 
-my @arr;
+my $string;
 
-$arr[4096] = 1;
+$string = 'x' x (1024 * 1024 * 2);
 
 print "Hello world\n";
