@@ -1,5 +1,8 @@
 package Devel::MemoryTrace::Light::BSDProcess;
 
+use strict;
+use warnings;
+
 use BSD::Process;
 
 my $mem = BSD::Process->new();

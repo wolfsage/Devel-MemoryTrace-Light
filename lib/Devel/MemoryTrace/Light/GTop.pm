@@ -1,5 +1,8 @@
 package Devel::MemoryTrace::Light::GTop;
 
+use strict;
+use warnings;
+
 use GTop;
 
 my $gtop = GTop->new();
