@@ -3,4 +3,5 @@
       - Testing of actual GTop/BSD::Process modules (skip if not installed).
         This can use the same logic 02-real.t uses
     - Ability to keep tracing after END
-
+    - Fix https://github.com/wolfsage/Devel-MemoryTrace-Light/issues/1
+     - After fix, publish some neat tricks with D::MT::L
