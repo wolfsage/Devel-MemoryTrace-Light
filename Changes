@@ -1,3 +1,6 @@
+0.08 Sun, Jun 26, 2011
+    - Close issue #1 - callbacks could cause memory growth and incorrect results
+
 0.07 Sat, Jun 11, 2011
     - Better test case to ensure memory traces are detected
 

@@ -1,7 +1,7 @@
 package Devel::MemoryTrace::Light;
 
 BEGIN {
-	$Devel::MemoryTrace::Light::VERSION = '0.07';
+	$Devel::MemoryTrace::Light::VERSION = '0.08';
 }
 
 use strict;
@@ -128,7 +128,8 @@ sub DB {
 	if ($newmem > $last_mem) {
 		$callback->(@last_id, $newmem - $last_mem);
 
-		$last_mem = $newmem;
+		# Call get_mem() again incase $callback caused memory growth
+		$last_mem = $mem_class->get_mem();
 	}
 
 	@last_id = caller();
@@ -162,7 +163,7 @@ Devel::MemoryTrace::Light - Print a message when your program grows in memory
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -272,6 +273,10 @@ modules are on the system.
 
 =head1 CAVEATS
 
+=over 4
+
+=item * Misleading results
+
 This module only identifies lines in a program that the resident set size 
 increased at. This does not mean, however, that if you have a memory leak and 
 you see bizarre lines increasing in size that they must be the problem. Often 
@@ -284,7 +289,7 @@ times, that's not the case. Consider the following example:
 
   my @cache;
 
-  for (1..10_000) {
+  for (1..100_000) {
           nothing();
           use_mem();
   }
@@ -301,11 +306,22 @@ If you run the above code under C<Devel::MemoryTrace::Light>, C<nothing()> will
 be reported as using the most memory. In reality though, C<use_mem()> is caching 
 data and is the real cause of the memory consumption, but C<nothing()> causes 
 more actual memory growth as it tries to create a new array and assign 
-a value to its first element. 
+a value to its first element.
 
 This is because after C<use_mem()> returns and C<@arr> goes out of scope, the 
 memory allocated to C<@arr> is potentially freed by the garbage collector, 
 allowing C<use_mem()> to use it without having to allocate more.
+
+Comment C<< push @cache, 1; >> out in the program above and no memory growth 
+should be reported.
+
+=item * Incorrect results
+
+It is possible for C<Devel::MemoryTrace::Light> internals to 
+cause memory usage and incorrect reports of growth, but it tries very hard to 
+prevent this.
+
+=back
 
 =head1 BUGS
 
