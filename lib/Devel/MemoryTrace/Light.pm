@@ -88,11 +88,11 @@ sub set_callback (&) {
 	$callback = $_[0];
 }
 
-sub restore_callback () {
+sub restore_callback {
 	$callback = \&_report;
 }
 
-sub enable_trace () {
+sub enable_trace {
 	# Memory tracing has been disabled, update our state
 	if ($pid != $$) {
 		$mem_class->forked() if $mem_class->can('forked');
@@ -106,7 +106,7 @@ sub enable_trace () {
 	$DB::single = 1;
 }
 
-sub disable_trace () {
+sub disable_trace {
 	$DB::single = 0;
 }
 
