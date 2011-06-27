@@ -1,5 +1,5 @@
 == Todo for 0.0*
-    - fork() tests
-      - Testing of actual GTop/BSD::Process modules (skip if not installed).
-        This can use the same logic 02-real.t uses
-    - Ability to keep tracing after END
+  - Testing of actual GTop/BSD::Process modules (skip if not installed).
+    - This can use the same logic 02-real.t uses
+
+  - Ability to keep tracing after END
