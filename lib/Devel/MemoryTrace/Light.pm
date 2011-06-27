@@ -4,6 +4,8 @@ BEGIN {
 	$Devel::MemoryTrace::Light::VERSION = '0.08';
 }
 
+use 5.005; # INIT
+
 use strict;
 use warnings;
 
