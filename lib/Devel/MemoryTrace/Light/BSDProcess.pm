@@ -10,7 +10,7 @@ my $mem = BSD::Process->new();
 sub get_mem {
 	$mem->refresh;
 
-	return $mem->rssize * 1024;
+	return $mem->maxrss * 1024;
 }
 
 # We forked? Re-init
