@@ -1,3 +1,7 @@
+0.09 Fri, Sep 23, 2011
+    - Close issue #2 - Use BSD::Process maxrss instead of rssize, which was incorrect
+    - Out of beta!
+
 0.08 Sun, Jun 26, 2011
     - Close issue #1 - callbacks could cause memory growth and incorrect results
 
