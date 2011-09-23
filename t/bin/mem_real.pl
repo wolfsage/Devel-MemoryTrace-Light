@@ -5,6 +5,6 @@ use warnings;
 
 my $string;
 
-$string = 'x' x (1024 * 1024 * 2);
+$string = 'x' x (1024 * 1024 * 12);
 
 print "Hello world\n";
